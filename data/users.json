@@ -1,0 +1,47 @@
+[
+  {
+    "_id": "2z1mdeb6iepmfzbojxi",
+    "name": "admin",
+    "email": "admin@local",
+    "passwordHash": "$2a$10$BnqQcI4yEgYDolMH38BKVOQnuvvsOrMP0O5Tw2ipumZDSrI58m7Ku",
+    "role": "user",
+    "verified": true,
+    "createdAt": "2025-09-25T11:21:22.662Z"
+  },
+  {
+    "_id": "eirhqqtsd4dmfzchoam",
+    "name": "Admin",
+    "email": "admin@local",
+    "passwordHash": "$2a$10$YWhQ/QnH1AtIPvBWj756UeWqZ5aUQgk4w2DJAODJLtVAJBI0n3hxe",
+    "role": "admin",
+    "verified": true,
+    "createdAt": "2025-09-25T11:44:01.341Z"
+  },
+  {
+    "_id": "8956g9vwon2mfzci2qq",
+    "name": "awdawdaw",
+    "email": "dawadwawdawdawd",
+    "passwordHash": "$2a$10$Ql2jAKnDC0dxfBGwQOBJJOvFbhAHFfCBsQVdrtKq5tKBpV8W27yqi",
+    "role": "user",
+    "verified": true,
+    "createdAt": "2025-09-25T11:44:20.065Z"
+  },
+  {
+    "_id": "qr0ssq435tfmfzdgmws",
+    "name": "adawdawd",
+    "email": "awdwdawdwa",
+    "passwordHash": "$2a$10$ni.Nl1H.4dye2SxD8aHL7OJYS5b9FqbYAgZDVkGEsGvWiq9V/b4nK",
+    "role": "user",
+    "verified": true,
+    "createdAt": "2025-09-25T12:11:12.508Z"
+  },
+  {
+    "_id": "42q88gl9xr3mfzdsvpp",
+    "name": "awdawdawd",
+    "email": "wadawdawda",
+    "passwordHash": "$2a$10$DU1WsGi6UuOqas6cqO6KS.O5GfEY.2ZelAmWNZ5wCvMQ1fHF531cm",
+    "role": "user",
+    "verified": true,
+    "createdAt": "2025-09-25T12:20:43.788Z"
+  }
+]

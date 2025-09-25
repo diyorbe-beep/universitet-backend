@@ -1,0 +1,20 @@
+[
+  {
+    "_id": "y82llzdr69mfzdt9lc",
+    "userEmail": "admin@local",
+    "title": "Yangi buyurtma!",
+    "message": "awdawda wdwdawd tomonidan \"awdwdwadwad\" uchun yangi buyurtma berildi.",
+    "type": "info",
+    "read": true,
+    "createdAt": "2025-09-25T12:21:01.775Z"
+  },
+  {
+    "_id": "3ftg1hc72uymfzdtt74",
+    "userEmail": "wadawdawda",
+    "title": "Buyurtma qabul qilindi!",
+    "message": "Sizning \"awdwdwadwad\" buyurtmangiz muvaffaqiyatli qabul qilindi. Tez orada siz bilan bog'lanishadi.",
+    "type": "success",
+    "read": false,
+    "createdAt": "2025-09-25T12:21:27.184Z"
+  }
+]
