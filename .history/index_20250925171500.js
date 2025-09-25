@@ -29,21 +29,6 @@ app.use((req, _res, next) => {
 	return next();
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
-	res.json({ 
-		message: 'Universitet Backend API', 
-		version: '1.0.0',
-		endpoints: {
-			health: '/api/health',
-			auth: '/api/auth/*',
-			services: '/api/services',
-			orders: '/api/orders',
-			notifications: '/api/notifications'
-		}
-	});
-});
-
 app.get('/api/health', (req, res) => {
 	res.json({ ok: true });
 });
