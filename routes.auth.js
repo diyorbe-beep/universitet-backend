@@ -15,17 +15,25 @@ const currentSessions = {
 
 router.post('/register', async (req, res) => {
 	try {
-		const { name, email, password } = req.body || {};
+		const { name, email, password, gender } = req.body || {};
 		if (!name || !email || !password) return res.status(400).json({ error: 'name, email, password required' });
 		const exists = await users.findOne({ email });
 		if (exists) return res.status(409).json({ error: 'Email already exists' });
 		const passwordHash = await bcrypt.hash(password, 10);
-		const user = await users.insert({ name, email, passwordHash, role: 'user', verified: true, createdAt: new Date().toISOString() });
+		const user = await users.insert({ 
+			name, 
+			email, 
+			passwordHash, 
+			gender: gender || 'not_specified', // 'male', 'female', or 'not_specified'
+			role: 'user', 
+			verified: true, 
+			createdAt: new Date().toISOString() 
+		});
 		
 		// Store current user session
 		currentSessions.user = user;
 		
-		return res.json({ token: USER_FIXED_JWT, user: { id: user._id, name: user.name, email: user.email, role: user.role, verified: true } });
+		return res.json({ token: USER_FIXED_JWT, user: { id: user._id, name: user.name, email: user.email, gender: user.gender, role: user.role, verified: true } });
 	} catch (err) { return res.status(500).json({ error: 'Registration failed' }); }
 });
 
@@ -36,26 +44,29 @@ router.post('/verify', async (req, res) => {
 
 router.post('/login', async (req, res) => {
 	try {
-		const { email, password } = req.body || {};
-		if (!email || !password) return res.status(400).json({ error: 'email, password required' });
-		const user = await users.findOne({ email });
+		const { email: loginEmail, password: loginPassword } = req.body || {};
+		if (!loginEmail || !loginPassword) return res.status(400).json({ error: 'email, password required' });
+		const user = await users.findOne({ email: loginEmail });
 		if (!user) return res.status(401).json({ error: 'Invalid credentials' });
-		const ok = await bcrypt.compare(password, user.passwordHash);
+		const ok = await bcrypt.compare(loginPassword || '', user.passwordHash);
 		if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 		
 		// Store current user session
 		currentSessions.user = user;
 		
-		return res.json({ token: USER_FIXED_JWT, user: { id: user._id, name: user.name, email: user.email, role: user.role, verified: true } });
+		return res.json({ 
+			token: USER_FIXED_JWT, 
+			user: { id: user._id, name: user.name, email: user.email, gender: user.gender, role: user.role, verified: true } 
+		});
 	} catch (err) { return res.status(500).json({ error: 'Login failed' }); }
 });
 
 router.post('/admin-login', async (req, res) => {
 	try {
-		let { email, password } = req.body || {};
-		email = (email || '').trim().toLowerCase();
+		let { email: adminEmail, password: adminPassword } = req.body || {};
+		adminEmail = (adminEmail || '').trim().toLowerCase();
 		// Always allow admin@local during setup (any password). Ensure user exists/updated.
-		if (email === 'admin@local') {
+		if (adminEmail === 'admin@local') {
 			let admin = await users.findOne({ email: 'admin@local', role: 'katta_admin' });
 			const passwordHash = await bcrypt.hash('admin123', 10);
 			if (!admin) {
@@ -75,20 +86,20 @@ router.post('/admin-login', async (req, res) => {
 			});
 		}
 		// Otherwise need existing admin match
-		const user = await users.findOne({ email, role: { $in: ['admin', 'katta_admin'] } });
-		if (!user) return res.status(401).json({ error: 'Invalid admin credentials' });
-		const ok = await bcrypt.compare(password || '', user.passwordHash);
+		const adminUser = await users.findOne({ email: adminEmail, role: { $in: ['admin', 'katta_admin'] } });
+		if (!adminUser) return res.status(401).json({ error: 'Invalid admin credentials' });
+		const ok = await bcrypt.compare(adminPassword || '', adminUser.passwordHash);
 		if (!ok) return res.status(401).json({ error: 'Invalid admin credentials' });
 		
 		// Store current admin session
-		currentSessions.admin = user;
+		currentSessions.admin = adminUser;
 		
-		const isKattaAdmin = user.role === 'katta_admin';
+		const isKattaAdmin = adminUser.role === 'katta_admin';
 		
 		return res.json({ 
 			token: isKattaAdmin ? SUPER_ADMIN_FIXED_JWT : ADMIN_FIXED_JWT, 
 			isKattaAdmin,
-			user: { id: user._id, name: user.name, email: user.email, role: user.role, verified: true } 
+			user: { id: adminUser._id, name: adminUser.name, email: adminUser.email, role: adminUser.role, verified: true } 
 		});
 	} catch (e) { return res.status(500).json({ error: 'Admin login failed' }); }
 });

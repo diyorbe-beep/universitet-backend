@@ -11,10 +11,21 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
 	try {
-		const { name, description, price, slug, videoSrc, person, rating } = req.body || {};
+		const { name, description, price, slug, videoSrc, person, rating, gender } = req.body || {};
 		if (!name) return res.status(400).json({ error: 'name required' });
 		const now = new Date().toISOString();
-		const svc = await services.insert({ name, description, price, slug, videoSrc, person, rating, createdAt: now, updatedAt: now });
+		const svc = await services.insert({ 
+			name, 
+			description, 
+			price, 
+			slug, 
+			videoSrc, 
+			person, 
+			rating, 
+			gender: gender || 'all', // 'male', 'female', or 'all'
+			createdAt: now, 
+			updatedAt: now 
+		});
 		res.status(201).json(svc);
 	} catch (err) {
 		res.status(500).json({ error: 'Create failed' });
