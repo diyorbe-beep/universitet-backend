@@ -1,3 +1,3 @@
-{"$$indexCreated":{"fieldName":"email","unique":true,"sparse":false}}
-{"name":"Katta Admin","email":"admin@local","passwordHash":"$2a$10$UF/j4PKePXTEPhRiKkob9eeBpLoBTpwYcpfQLnSF2k3lEox4igAmC","role":"katta_admin","verified":true,"createdAt":"2026-02-10T14:03:26.818Z","_id":"1VrZm3kyo6lmLRXj"}
 {"name":"Katta Admin","email":"admin@local","passwordHash":"$2a$10$2/yRRotMNn8Kh18WX4yNcORJ0qkRywt6uqFoIAxbWmafxra2QyeGO","role":"katta_admin","verified":true,"createdAt":"2026-02-10T14:03:26.818Z","_id":"1VrZm3kyo6lmLRXj"}
+{"$$indexCreated":{"fieldName":"email","unique":true,"sparse":false}}
+{"$$indexCreated":{"fieldName":"email","unique":true}}
