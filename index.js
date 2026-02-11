@@ -8,6 +8,8 @@ const authRoutes = require('./routes.auth');
 const servicesRoutes = require('./routes.services');
 const ordersRoutes = require('./routes.orders');
 const notificationsRoutes = require('./routes.notifications');
+const newsRoutes = require('./routes.news');
+const suggestionsRoutes = require('./routes.suggestions');
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +54,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/services', servicesRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/news', newsRoutes);
+app.use('/api/suggestions', suggestionsRoutes);
 
 // JSON 404 handler
 app.use((req, res) => {
