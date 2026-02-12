@@ -99,4 +99,10 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Helper function to add news item (used by suggestions)
+function addNewsItem(newsItem) {
+  news.unshift(newsItem);
+}
+
 module.exports = router;
+module.exports.addNewsItem = addNewsItem;

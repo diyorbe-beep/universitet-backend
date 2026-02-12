@@ -43,5 +43,14 @@
     "role": "user",
     "verified": true,
     "createdAt": "2025-09-25T12:20:43.788Z"
+  },
+  {
+    "_id": "8rwg7q38dlumljg0r6x",
+    "name": "Katta Admin",
+    "email": "admin@local",
+    "passwordHash": "$2a$10$vxr7/FZPpgcJIVYfVp9uouPuhbvVcKmq2QR8wikpfKnK5Ln/8EaPe",
+    "role": "katta_admin",
+    "verified": true,
+    "createdAt": "2026-02-12T12:36:45.608Z"
   }
 ]
