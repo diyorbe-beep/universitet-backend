@@ -17,7 +17,9 @@ const io = new Server(server, {
 	cors: {
 		origin: '*',
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-	}
+	},
+	// Add namespace configuration
+	path: '/socket.io'
 });
 
 app.set('io', io);
