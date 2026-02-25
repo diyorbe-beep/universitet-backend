@@ -65,31 +65,11 @@ router.post('/admin-login', async (req, res) => {
 	try {
 		let { email: adminEmail, password: adminPassword } = req.body || {};
 		adminEmail = (adminEmail || '').trim().toLowerCase();
-		// Always allow admin@local during setup (any password). Ensure user exists/updated.
-		if (adminEmail === 'admin@local') {
-			let admin = await users.findOne({ email: 'admin@local', role: 'katta_admin' });
-			const passwordHash = await bcrypt.hash('admin123', 10);
-			if (!admin) {
-				admin = await users.insert({ name: 'Katta Admin', email: 'admin@local', passwordHash, role: 'katta_admin', verified: true, createdAt: new Date().toISOString() });
-			} else {
-				await users.update({ _id: admin._id }, { $set: { passwordHash, role: 'katta_admin', verified: true } });
-				admin = await users.findOne({ _id: admin._id });
-			}
-			
-			// Store current admin session
-			currentSessions.admin = admin;
-			
-			return res.json({ 
-				token: SUPER_ADMIN_FIXED_JWT, 
-				isKattaAdmin: true,
-				user: { id: admin._id, name: admin.name, email: admin.email, role: admin.role, verified: true } 
-			});
-		}
-		// Otherwise need existing admin match
+
 		const adminUser = await users.findOne({ email: adminEmail, role: { $in: ['admin', 'katta_admin'] } });
-		if (!adminUser) return res.status(401).json({ error: 'Invalid admin credentials' });
+		if (!adminUser) return res.status(401).json({ error: 'Noto\'g\'ri email yoki parol' });
 		const ok = await bcrypt.compare(adminPassword || '', adminUser.passwordHash);
-		if (!ok) return res.status(401).json({ error: 'Invalid admin credentials' });
+		if (!ok) return res.status(401).json({ error: 'Noto\'g\'ri email yoki parol' });
 		
 		// Store current admin session
 		currentSessions.admin = adminUser;
@@ -167,11 +147,11 @@ router.get('/me', async (req, res) => {
 });
 
 router.post('/seed-admin', async (_req, res) => {
-	const adminEmail = 'admin@local';
+	const adminEmail = 'superadmin@gmail.com';
 	const exists = await users.findOne({ email: adminEmail });
 	if (!exists) {
 		const passwordHash = await bcrypt.hash('admin123', 10);
-		await users.insert({ name: 'Katta Admin', email: adminEmail, passwordHash, role: 'katta_admin', verified: true, createdAt: new Date().toISOString() });
+		await users.insert({ name: 'Super Admin', email: adminEmail, passwordHash, role: 'katta_admin', verified: true, createdAt: new Date().toISOString() });
 	}
 	res.json({ ok: true });
 });
@@ -179,10 +159,10 @@ router.post('/seed-admin', async (_req, res) => {
 // Admin management routes (Katta Admin only)
 router.post('/create-admin', async (req, res) => {
 	try {
-		const { name, email, password } = req.body || {};
+		const { name, email, password, firstName, lastName, shortDesc, gender } = req.body || {};
 		
-		if (!name || !email || !password) {
-			return res.status(400).json({ error: 'name, email, password required' });
+		if (!email || !password) {
+			return res.status(400).json({ error: 'email, password required' });
 		}
 		
 		// Check if email already exists
@@ -193,7 +173,11 @@ router.post('/create-admin', async (req, res) => {
 		
 		const passwordHash = await bcrypt.hash(password, 10);
 		const admin = await users.insert({ 
-			name, 
+			name: name || `${firstName || ''} ${lastName || ''}`.trim(), 
+			firstName,
+			lastName,
+			shortDesc,
+			gender: gender || 'male',
 			email, 
 			passwordHash, 
 			role: 'admin', // Always create regular admin
@@ -204,6 +188,10 @@ router.post('/create-admin', async (req, res) => {
 		res.json({
 			_id: admin._id,
 			name: admin.name,
+			firstName: admin.firstName,
+			lastName: admin.lastName,
+			shortDesc: admin.shortDesc,
+			gender: admin.gender,
 			email: admin.email,
 			role: admin.role,
 			createdAt: admin.createdAt
@@ -211,6 +199,60 @@ router.post('/create-admin', async (req, res) => {
 	} catch (err) {
 		console.error('Create admin error:', err);
 		res.status(500).json({ error: 'Failed to create admin' });
+	}
+});
+
+router.put('/admins/:id', async (req, res) => {
+	try {
+		const { id } = req.params;
+		const { email, password, firstName, lastName, shortDesc, gender } = req.body || {};
+		
+		const admin = await users.findOne({ _id: id });
+		if (!admin) return res.status(404).json({ error: 'Admin topilmadi' });
+		
+		const updateData = {};
+		if (email && email !== admin.email) {
+			const exists = await users.findOne({ email });
+			if (exists) return res.status(409).json({ error: 'Email already exists' });
+			updateData.email = email;
+		}
+		if (password) {
+			updateData.passwordHash = await bcrypt.hash(password, 10);
+		}
+		if (firstName !== undefined) updateData.firstName = firstName;
+		if (lastName !== undefined) updateData.lastName = lastName;
+		if (shortDesc !== undefined) updateData.shortDesc = shortDesc;
+		if (gender !== undefined) updateData.gender = gender;
+		
+		if (firstName || lastName) {
+			updateData.name = `${firstName || admin.firstName || ''} ${lastName || admin.lastName || ''}`.trim();
+		}
+
+		await users.update({ _id: id }, { $set: updateData });
+		res.json({ ok: true });
+	} catch (err) {
+		console.error('Update admin error:', err);
+		res.status(500).json({ error: 'Failed to update admin' });
+	}
+});
+
+router.get('/users-manage', async (req, res) => {
+	try {
+		const allUsers = await users.all();
+		const safeUsers = allUsers.map(u => ({
+			_id: u._id,
+			name: u.name,
+			firstName: u.firstName,
+			lastName: u.lastName,
+			shortDesc: u.shortDesc,
+			gender: u.gender,
+			email: u.email,
+			role: u.role,
+			createdAt: u.createdAt
+		}));
+		res.json(safeUsers);
+	} catch (err) {
+		res.status(500).json({ error: 'Failed to fetch users' });
 	}
 });
 

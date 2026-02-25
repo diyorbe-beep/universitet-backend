@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
 	try {
-		const { name, description, price, slug, videoSrc, person, rating, gender } = req.body || {};
+		const { name, description, price, slug, videoSrc, person, rating, gender, features } = req.body || {};
 		if (!name) return res.status(400).json({ error: 'name required' });
 		const now = new Date().toISOString();
 		const svc = await services.insert({ 
@@ -22,7 +22,8 @@ router.post('/', async (req, res) => {
 			videoSrc, 
 			person, 
 			rating, 
-			gender: gender || 'all', // 'male', 'female', or 'all'
+			gender: gender || 'male', // 'male' or 'female'
+			features: Array.isArray(features) ? features : [],
 			createdAt: now, 
 			updatedAt: now 
 		});
