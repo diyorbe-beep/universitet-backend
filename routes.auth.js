@@ -51,11 +51,24 @@ router.post('/login', async (req, res) => {
 		const ok = await bcrypt.compare(loginPassword || '', user.passwordHash);
 		if (!ok) return res.status(401).json({ error: 'Invalid credentials' });
 		
-		// Store current user session
-		currentSessions.user = user;
+		// Determine token and admin flags based on role
+		const isKattaAdmin = user.role === 'katta_admin';
+		const isAdmin = user.role === 'admin' || isKattaAdmin;
+		let token = USER_FIXED_JWT;
+		if (isKattaAdmin) token = SUPER_ADMIN_FIXED_JWT;
+		else if (isAdmin) token = ADMIN_FIXED_JWT;
+
+		// Store current session
+		if (isAdmin) {
+			currentSessions.admin = user;
+		} else {
+			currentSessions.user = user;
+		}
 		
 		return res.json({ 
-			token: USER_FIXED_JWT, 
+			token,
+			isAdmin,
+			isKattaAdmin,
 			user: { id: user._id, name: user.name, email: user.email, gender: user.gender, role: user.role, verified: true } 
 		});
 	} catch (err) { return res.status(500).json({ error: 'Login failed' }); }
