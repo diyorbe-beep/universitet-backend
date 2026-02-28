@@ -3,6 +3,7 @@ const http = require('http');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const { Server } = require('socket.io');
+const bcrypt = require('bcryptjs');
 
 const authRoutes = require('./routes.auth');
 const servicesRoutes = require('./routes.services');
@@ -10,6 +11,7 @@ const ordersRoutes = require('./routes.orders');
 const notificationsRoutes = require('./routes.notifications');
 const newsRoutes = require('./routes.news');
 const suggestionsRoutes = require('./routes.suggestions');
+const { users } = require('./jsondb');
 
 const app = express();
 const server = http.createServer(app);
@@ -66,6 +68,33 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
 	console.log(`API server listening on http://localhost:${PORT}`);
+
+	// Auto-seed superadmin on startup
+	try {
+		const SUPER_ADMIN_EMAIL = 'superadmin@gmail.com';
+		const SUPER_ADMIN_PASSWORD = 'admin123';
+		let existing = await users.findOne({ email: SUPER_ADMIN_EMAIL });
+		if (!existing) {
+			const passwordHash = await bcrypt.hash(SUPER_ADMIN_PASSWORD, 10);
+			await users.insert({
+				name: 'Super Admin',
+				firstName: 'Super',
+				lastName: 'Admin',
+				email: SUPER_ADMIN_EMAIL,
+				passwordHash,
+				role: 'katta_admin',
+				gender: 'male',
+				verified: true,
+				createdAt: new Date().toISOString()
+			});
+			console.log(`✅ Superadmin yaratildi: ${SUPER_ADMIN_EMAIL}`);
+		} else {
+			console.log(`ℹ️  Superadmin allaqachon mavjud: ${SUPER_ADMIN_EMAIL}`);
+		}
+	} catch (err) {
+		console.error('❌ Superadmin seed xatoligi:', err);
+	}
 });
+
